@@ -1,0 +1,237 @@
+/* === ダークモード風 共通 === */
+:root {
+  --bg: #0f1419;
+  --bg-elev: #141a21;
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+  --accent: #60a5fa;
+  --danger: #f87171;
+  --tabbar-h: 48px;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, .5);
+  --shadow-2: 0 8px 24px rgba(0, 0, 0, .35);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.6 system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans JP", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+/* === タブバー === */
+.tabbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  height: var(--tabbar-h);
+  background: linear-gradient(180deg, #0f1419 0%, #111821 100%);
+  padding: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, .06);
+  box-shadow: var(--shadow-1);
+}
+
+.tabbar .tab {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease;
+}
+
+.tabbar .tab:hover {
+  background: rgba(255, 255, 255, .06);
+  color: var(--text);
+}
+
+.tabbar .tab.is-active {
+  background: rgba(96, 165, 250, .12);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* === ビュー === */
+.main {
+  height: 100%;
+}
+
+.view {
+  display: none;
+  min-height: calc(100vh - var(--tabbar-h));
+  padding: 16px;
+  content-visibility: auto;
+  /* 非表示領域の描画コスト最小化 */
+}
+
+.view.is-active {
+  display: block;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.error {
+  color: var(--danger);
+}
+
+/* === ギャラリー === */
+.toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, .08);
+  background: #18212b;
+  color: var(--text);
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #1c2631;
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.caption {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* 額縁風 */
+.frame {
+  position: relative;
+  padding: 14px;
+  border-radius: 12px;
+  background: #0c1015;
+  border: 1px solid rgba(255, 255, 255, .05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .6), inset 0 0 0 1px rgba(255, 255, 255, .03);
+}
+
+.frame::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #272f39, #1b2129);
+  box-shadow: var(--shadow-2);
+  z-index: -1;
+}
+
+.frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .04);
+}
+
+/* === ログ === */
+.logbox {
+  display: block;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 12px 14px;
+  background: var(--bg-elev);
+  border: 1px solid rgba(255, 255, 255, .06);
+  border-radius: 8px;
+  box-shadow: var(--shadow-1);
+  color: var(--text);
+  overflow: auto;
+  white-space: pre;
+}
+
+.logbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.time {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* スクロールバー */
+*::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #2a3440;
+  border-radius: 8px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #344152;
+}
+
+*::-webkit-scrollbar-track {
+  background: #0f1419;
+}
+
+
+/* --- 勉強したこと（テキスト一覧＋ビューア）追加分 --- */
+.hidden {
+  display: none !important;
+}
+
+.kn-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-weight: 600;
+  background: #1a2430;
+  border-color: rgba(255, 255, 255, .10);
+}
+
+.kn-item:hover {
+  background: #202c3a;
+}
+
+.kn-viewer {
+  margin-top: 12px;
+}
+
+.kn-viewer-bar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
