@@ -2,95 +2,61 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="format-detection" content="telephone=no" />
-  <meta name="theme-color" content="#0a84ff" />
-  <title>早朝出勤日一覧</title>
-  <link rel="stylesheet" href="./mobile.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>早朝出勤日一覧（Fast SPA）</title>
+  <link rel="stylesheet" href="./index.css" />
+  <style>
+    /* タブ削除後の最小見た目（必要なら調整） */
+    .main { max-width: 720px; margin: 0 auto; padding: 1rem; }
+    .muted { color: #666; font-size: .9rem; }
+    .row-link {
+      display:inline-block; padding: .5rem .75rem; text-decoration:none;
+      border: 1px solid var(--border, #ddd); border-radius: 6px;
+      background: var(--bg, #fff); color: inherit;
+    }
+  </style>
 </head>
 <body>
-  <header class="appbar">
-    <h1 class="title">早朝出勤日一覧</h1>
-    <button id="btn-refresh" class="icon-btn" aria-label="更新">
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M17.65 6.35A7.95 7.95 0 0 0 12 4a8 8 0 1 0 7.9 6h-2.06A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L14 10h8V2l-4.35 4.35z"/>
-      </svg>
-    </button>
-  </header>
-
   <main class="main" role="main" aria-label="早朝出勤日一覧">
-    <p class="note">
-      行をタップすると予定（.ics）を作成し、<strong>前日21:00にリマインド</strong>が入ります。
-    </p>
+    <!-- ヘッダやタブは削除。単一ビューのみ -->
+    <h1 style="margin:.25rem 0 0.5rem;">早朝出勤日一覧</h1>
 
-    <!-- ステータス（ローディング／エラー） -->
-    <div id="status" class="status" role="status" aria-live="polite"></div>
+    <div class="muted" style="margin:.5rem 0;">
+      タップするとカレンダーに予定＋前日21:00にリマインド通知を登録します。
+    </div>
 
-    <!-- 予定リスト -->
-    <ul id="time-list" class="list" aria-live="polite" aria-label="予定に登録する行一覧"></ul>
+    <!-- 1行ずつ改行して並べる（シンプルな縦リスト） -->
+    <ul id="time-list" class="list" aria-live="polite" aria-label="予定に登録する行一覧"
+      style="list-style:none; padding-left:0;"></ul>
   </main>
 
-  <footer class="footer">
-    <small>最終更新: <span id="last-updated" aria-live="polite">—</span></small>
-  </footer>
-
   <script>
-    /*** 設定 *********************************************/
-    const LOG_URL = "./public/log.txt"; // 1行 = 1イベント
-    const DEFAULT_DURATION_MIN = 60;    // 予定長（分）
-    /*****************************************************/
+    /*** 設定エリア *********************************************/
+    // ログ（1行＝1イベントのローカル日時）
+    const LOG_URL = "./public/log.txt";
+    /************************************************************/
 
-    const $ = (s, d=document) => d.querySelector(s);
-    const $$ = (s, d=document) => Array.from(d.querySelectorAll(s));
-
-    const elList = $('#time-list');
-    const elStatus = $('#status');
-    const elRefresh = $('#btn-refresh');
-    const elUpdated = $('#last-updated');
-
-    // 初回読み込み & 手動更新
+    // 起動時に毎回最新 log.txt を取得して描画
     document.addEventListener('DOMContentLoaded', () => {
-      refresh();
-      elRefresh.addEventListener('click', () => refresh(true));
+      fetchAndRenderTime().catch(() => renderTimeLinks('')); // エラー時は空
     });
 
-    async function refresh(isManual=false) {
-      try {
-        setLoading(true);
-        const res = await fetch(LOG_URL + '?t=' + Date.now(), { cache: 'no-store' });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const text = await res.text();
-        renderTimeLinks(text);
-        setStatus('');
-        elUpdated.textContent = new Date().toLocaleString();
-      } catch (e) {
-        renderTimeLinks('');
-        setStatus('読み込みに失敗しました。通信状況をご確認ください。');
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
+    /* ---------- 早朝出勤日：log.txt を取得してリストを作成 ---------- */
+    async function fetchAndRenderTime() {
+      const res = await fetch(LOG_URL + '?t=' + Date.now(), { cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const text = await res.text();
+      renderTimeLinks(text);
     }
 
-    function setLoading(loading) {
-      elRefresh.classList.toggle('spin', loading);
-      if (loading) {
-        setStatus('読み込み中…');
-      }
-    }
-    function setStatus(msg) {
-      elStatus.textContent = msg || '';
-      elStatus.classList.toggle('hidden', !msg);
-    }
-
-    /* ---------- パース＆描画 ---------- */
+    /* ---------- .ics 生成ユーティリティ ---------- */
     // 例: "2026/02/10(火) 8:39:00"（曜日は無視）
     function parseJpDateLine(line) {
       const m = line.trim().match(
         /^(\d{4})\/(\d{1,2})\/(\d{1,2})(?:\(.+?\))?\s+(\d{1,2}):(\d{2})(?::(\d{2}))?$/
       );
       if (!m) return null;
-      const [, yy, mm, dd, HH, MM, SS] = m;
+      const [_, yy, mm, dd, HH, MM, SS] = m;
       return new Date(
         Number(yy),
         Number(mm) - 1,
@@ -101,8 +67,7 @@
         0
       );
     }
-    const pad2 = n => String(n).padStart(2, '0');
-
+    function pad2(n) { return String(n).padStart(2, '0'); }
     function formatUtcForICS(d) {
       const y = d.getUTCFullYear();
       const m = pad2(d.getUTCMonth() + 1);
@@ -112,7 +77,6 @@
       const ss = pad2(d.getUTCSeconds());
       return `${y}${m}${day}T${hh}${mm}${ss}Z`;
     }
-
     function buildICS(title, startLocal, endLocal) {
       // 前日 21:00（ローカル）に絶対UTCアラーム
       const alarmLocal = new Date(startLocal.getTime());
@@ -145,7 +109,6 @@
       ];
       return lines.join('\r\n');
     }
-
     function downloadICSFile(fileName, icsText) {
       const blob = new Blob([icsText], { type: 'text/calendar;charset=utf-8' });
       const url = URL.createObjectURL(blob);
@@ -158,53 +121,45 @@
       setTimeout(() => URL.revokeObjectURL(url), 4000);
     }
 
+    /* ---------- 各行（タップ）→ .ics 生成（縦並び・1行ずつ改行） ---------- */
     function renderTimeLinks(text) {
-      elList.innerHTML = '';
-      const lines = (text || '').split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+      const ul = document.getElementById('time-list');
+      if (!ul) return;
+      ul.innerHTML = '';
 
+      const lines = (text || '').split(/\r?\n/).map(s => s.trim()).filter(Boolean);
       if (!lines.length) {
-        const li = document.createElement('li');
-        li.className = 'empty';
-        li.textContent = 'log.txt に有効な日付行がありません。';
-        elList.appendChild(li);
+        ul.innerHTML = '<li class="muted">log.txt に有効な日付行がありません。</li>';
         return;
       }
-
-      const frag = document.createDocumentFragment();
 
       for (const line of lines) {
         const start = parseJpDateLine(line);
         if (!start) continue;
-        const end = new Date(start.getTime() + DEFAULT_DURATION_MIN * 60 * 1000);
+        const end = new Date(start.getTime() + 60 * 60 * 1000); // デフォルト1時間
 
         const li = document.createElement('li');
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'row';
-        btn.setAttribute('aria-label', `${line} をカレンダー登録（.ics生成）`);
+        li.style.margin = '0.25rem 0';
 
-        // 見出し＋補助
-        const primary = document.createElement('span');
-        primary.className = 'primary';
-        primary.textContent = line;
+        const a = document.createElement('a');
+        a.href = '#';
+        a.className = 'row-link';
+        a.setAttribute('role', 'button');
+        a.setAttribute('aria-label', `${line} をカレンダー登録（.ics生成）`);
+        a.textContent = line;
 
-        const secondary = document.createElement('span');
-        secondary.className = 'secondary';
-        secondary.textContent = 'タップで.ics作成（1時間）';
-
-        btn.appendChild(primary);
-        btn.appendChild(secondary);
-
-        btn.addEventListener('click', () => {
+        a.addEventListener('click', (ev) => {
+          ev.preventDefault();
           const ics = buildICS('早朝出勤', start, end);
-          const fname = `${start.getFullYear()}${pad2(start.getMonth() + 1)}${pad2(start.getDate())}_${pad2(start.getHours())}${pad2(start.getMinutes())}.ics`;
+          const fname =
+            `${start.getFullYear()}${pad2(start.getMonth() + 1)}${pad2(start.getDate())}_` +
+            `${pad2(start.getHours())}${pad2(start.getMinutes())}.ics`;
           downloadICSFile(fname, ics);
         });
 
-        li.appendChild(btn);
-        frag.appendChild(li);
+        li.appendChild(a);
+        ul.appendChild(li);
       }
-      elList.appendChild(frag);
     }
   </script>
 </body>
