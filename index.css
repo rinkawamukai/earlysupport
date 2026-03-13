@@ -1,13 +1,25 @@
-/* ===== モバイル最適 ===== */
+/* =========================================
+   早朝出勤日一覧 - モバイル最適 CSS
+   - フル幅タップ（.row-link）
+   - 左寄せ固定（親の text-align: center を無効化）
+   - ダークモード対応
+   - iOSセーフエリア考慮
+   - フォーカスリング/アクセシビリティ
+   ========================================= */
+
+/* ---- CSSカスタムプロパティ（ライト/ダークで切替） ---- */
 :root {
   --bg: #ffffff;
   --fg: #111418;
   --muted: #667085;
   --border: #e5e7eb;
-  --accent: #0a84ff;
-  --row-bg: #fff;
-  --row-bg-press: #f2f4f7;
-  --shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.1);
+  --surface: #ffffff;
+  --surface-press: #f2f4f7;
+  --shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
+  --radius: 10px;
+
+  --focus: #155eef;
+  --focus-ring: 0 0 0 3px rgba(21, 94, 239, .2);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -16,121 +28,125 @@
     --fg: #e5e7eb;
     --muted: #98a2b3;
     --border: #1f2937;
-    --accent: #0a84ff;
-    --row-bg: #0f1419;
-    --row-bg-press: #131a21;
-    --shadow: 0 1px 2px rgba(0,0,0,0.5);
+    --surface: #0f1419;
+    --surface-press: #121a21;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .55);
+    --focus: #4c8dff;
+    --focus-ring: 0 0 0 3px rgba(76, 141, 255, .28);
   }
 }
 
-/* ベース */
+/* ---- ベース ---- */
 * { box-sizing: border-box; }
 html, body { height: 100%; }
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic UI", "Meiryo", sans-serif;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto,
+               "Hiragino Kaku Gothic ProN", "Noto Sans JP",
+               "Yu Gothic UI", "Meiryo", sans-serif;
   font-size: 16px;
   line-height: 1.5;
-  background: var(--bg);
   color: var(--fg);
+  background: var(--bg);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  /* iOSセーフエリア */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+           env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
-/* アプリバー（固定） */
-.appbar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: .5rem;
-  padding: .75rem 1rem;
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
-  backdrop-filter: saturate(180%) blur(8px);
+/* リンク・ボタンのフォーカス見やすく */
+a, button {
+  color: inherit;
+  outline: none;
 }
-.title {
-  margin: 0;
-  font-size: 1.05rem;
-  font-weight: 700;
+a:focus-visible, button:focus-visible {
+  box-shadow: var(--focus-ring);
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: calc(var(--radius) + 2px);
 }
-.icon-btn {
-  width: 40px; height: 40px;
-  display: grid; place-items: center;
-  border: 1px solid var(--border);
-  background: var(--row-bg);
-  color: var(--fg);
-  border-radius: 10px;
-  box-shadow: var(--shadow);
-}
-.icon-btn svg { width: 22px; height: 22px; fill: currentColor; }
-.icon-btn.spin { animation: spin .9s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
 
-/* メイン */
+/* ---- コンテナ ---- */
 .main {
   max-width: 720px;
   margin: 0 auto;
   padding: 1rem;
 }
-.note {
-  margin: .25rem 0 1rem;
+
+/* ---- タイトル・説明 ---- */
+h1 {
+  margin: .25rem 0 .5rem;
+  font-size: clamp(1.05rem, 2.5vw, 1.25rem);
+  line-height: 1.3;
+}
+.muted {
   color: var(--muted);
   font-size: .95rem;
 }
 
-/* ステータス */
-.status { margin: .25rem 0 .75rem; color: var(--muted); }
-.hidden { display: none; }
-
-/* リスト */
+/* ---- リスト ---- */
 .list {
   list-style: none;
-  padding: 0;
-  margin: 0;
+  padding-left: 0;
+  margin: .75rem 0 0;
   display: grid;
-  gap: .5rem;
-}
-.list .empty {
-  color: var(--muted);
-  padding: .75rem .9rem;
-  border: 1px dashed var(--border);
-  border-radius: 12px;
+  gap: .5rem; /* 行間 */
+  /* 親が text-align:center でも中身を左寄せに固定 */
+  text-align: left;
 }
 
-/* 行ボタン（44px以上のタップ領域） */
-.row {
-  display: block;
+.list > li {
+  margin: 0; /* 余白は grid-gap に任せる */
+}
+
+/* ---- 行リンク（タップターゲット） ----
+   元HTMLは .row-link を <a> で使っているのでそれをスタイル */
+.row-link {
+  display: block;              /* フル幅ボタン化（中央寄せ回避） */
   width: 100%;
-  text-align: left; /* 中央寄せを防ぐ */
-  padding: .8rem .95rem;
-  background: var(--row-bg);
-  color: inherit;
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  padding: .8rem .95rem;       /* タップしやすい高さ確保(>=44px目安) */
+  text-decoration: none;
+  background: var(--surface);
+  border: 1px solid var(--border, #ddd);
+  border-radius: var(--radius);
   box-shadow: var(--shadow);
-  cursor: pointer;
-}
-.row:active { background: var(--row-bg-press); }
-.row .primary {
-  display: block;
-  font-weight: 600;
-  letter-spacing: .1px;
-}
-.row .secondary {
-  display: block;
-  margin-top: .15rem;
-  color: var(--muted);
-  font-size: .9rem;
+  color: inherit;
+  word-break: break-word;      /* 長い日付や文字でも折り返す */
+  white-space: normal;
+  transition: background-color .15s ease, transform .05s ease;
 }
 
-/* フッタ */
-.footer {
-  max-width: 720px;
-  margin: 1rem auto 2rem;
-  padding: 0 1rem;
-  color: var(--muted);
+.row-link:hover {
+  background: color-mix(in srgb, var(--surface) 94%, var(--fg) 6%);
+}
+.row-link:active {
+  background: var(--surface-press);
+  transform: translateY(1px);
+}
+
+/* アクセシビリティ：キーボードフォーカス時のリングは上の a:focus-visible で付与 */
+
+/* ---- 空の状態（JSのエラー時メッセージなど） ---- */
+.list .muted {
+  display: block;
+  padding: .75rem .95rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+}
+
+/* ---- 余白の最適化（小画面での詰め） ---- */
+@media (max-width: 400px) {
+  .main { padding: .75rem; }
+  .row-link { padding: .75rem .85rem; }
+}
+
+/* ---- 動きが苦手なユーザー配慮 ---- */
+@media (prefers-reduced-motion: reduce) {
+  .row-link { transition: none; }
+}
+
+/* ---- 高コントラスト環境での境界強調（Windows等） ---- */
+@media (forced-colors: active) {
+  .row-link { border: 1px solid CanvasText; }
 }
