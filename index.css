@@ -1,40 +1,42 @@
 /* =========================================
    早朝出勤日一覧 - モバイル最適 CSS
-   - フル幅タップ（.row-link）
-   - 左寄せ固定（親の text-align: center を無効化）
-   - ダークモード対応
-   - iOSセーフエリア考慮
-   - フォーカスリング/アクセシビリティ
+   デフォルト＝ダーク、ライトは prefers-color-scheme: light 時のみ上書き
    ========================================= */
 
-/* ---- CSSカスタムプロパティ（ライト/ダークで切替） ---- */
+/* ---- CSSカスタムプロパティ（まず“ダーク”を基準） ---- */
 :root {
-    --bg: #0b0f13;
-    --fg: #e5e7eb;
-    --muted: #98a2b3;
-    --border: #1f2937;
-    --surface: #0f1419;
-    --surface-press: #121a21;
-    --shadow: 0 1px 2px rgba(0, 0, 0, .55);
-    --radius: 10px;
-    --focus: #4c8dff;
-    --focus-ring: 0 0 0 3px rgba(76, 141, 255, .28);
-
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-  --bg: #ffffff;
-  --fg: #111418;
-  --muted: #667085;
-  --border: #e5e7eb;
-  --surface: #ffffff;
-  --surface-press: #f2f4f7;
-  --shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
+  /* デフォルトでダーク配色 */
+  --bg: #0b0f13;
+  --fg: #e5e7eb;
+  --muted: #98a2b3;
+  --border: #1f2937;
+  --surface: #0f1419;
+  --surface-press: #121a21;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .55);
   --radius: 10px;
 
-  --focus: #155eef;
-  --focus-ring: 0 0 0 3px rgba(21, 94, 239, .2);
+  --focus: #4c8dff;
+  --focus-ring: 0 0 0 3px rgba(76, 141, 255, .28);
+
+  /* フォーム要素等のネイティブ配色ヒント */
+  color-scheme: dark;
+}
+
+/* ユーザーが“ライト”を好んでいるときだけ、ライト配色で上書き */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #ffffff;
+    --fg: #111418;
+    --muted: #667085;
+    --border: #e5e7eb;
+    --surface: #ffffff;
+    --surface-press: #f2f4f7;
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
+
+    --focus: #155eef;
+    --focus-ring: 0 0 0 3px rgba(21, 94, 239, .2);
+
+    color-scheme: light;
   }
 }
 
@@ -94,42 +96,37 @@ h1 {
   margin: .75rem 0 0;
   display: grid;
   gap: .5rem; /* 行間 */
-  /* 親が text-align:center でも中身を左寄せに固定 */
-  text-align: left;
+  text-align: left; /* 親の centralize を無効化 */
 }
 
-.list > li {
-  margin: 0; /* 余白は grid-gap に任せる */
-}
+.list > li { margin: 0; }
 
-/* ---- 行リンク（タップターゲット） ----
-   元HTMLは .row-link を <a> で使っているのでそれをスタイル */
+/* ---- 行リンク（タップターゲット） ---- */
 .row-link {
   display: block;              /* フル幅ボタン化（中央寄せ回避） */
   width: 100%;
-  padding: .8rem .95rem;       /* タップしやすい高さ確保(>=44px目安) */
+  padding: .8rem .95rem;       /* 44px以上のタップ高さを確保 */
   text-decoration: none;
   background: var(--surface);
-  border: 1px solid var(--border, #ddd);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   color: inherit;
-  word-break: break-word;      /* 長い日付や文字でも折り返す */
+  word-break: break-word;
   white-space: normal;
   transition: background-color .15s ease, transform .05s ease;
 }
 
 .row-link:hover {
-  background: color-mix(in srgb, var(--surface) 94%, var(--fg) 6%);
+  /* ホバー微差：ダーク・ライト双方で自然に */
+  background: color-mix(in srgb, var(--surface) 92%, var(--fg) 8%);
 }
 .row-link:active {
   background: var(--surface-press);
   transform: translateY(1px);
 }
 
-/* アクセシビリティ：キーボードフォーカス時のリングは上の a:focus-visible で付与 */
-
-/* ---- 空の状態（JSのエラー時メッセージなど） ---- */
+/* 空の状態（メッセージ） */
 .list .muted {
   display: block;
   padding: .75rem .95rem;
@@ -137,18 +134,18 @@ h1 {
   border-radius: var(--radius);
 }
 
-/* ---- 余白の最適化（小画面での詰め） ---- */
+/* 小画面の詰め調整 */
 @media (max-width: 400px) {
   .main { padding: .75rem; }
   .row-link { padding: .75rem .85rem; }
 }
 
-/* ---- 動きが苦手なユーザー配慮 ---- */
+/* モーション弱め希望 */
 @media (prefers-reduced-motion: reduce) {
   .row-link { transition: none; }
 }
 
-/* ---- 高コントラスト環境での境界強調（Windows等） ---- */
+/* 高コントラスト環境 */
 @media (forced-colors: active) {
   .row-link { border: 1px solid CanvasText; }
 }
