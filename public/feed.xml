@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <rss version="2.0">
-  <channel>
-    <title>remind Feed</title>
-    <link>https://rinkawamukai.github.io/test/public/</link>
-    <description>remind morning</description>
-    <item>
-      <title>remind</title>
-      <pubDate>Wed, 05 Mar 2026 08:30:00 +0900</pubDate>
-      <guid isPermaLink="false">2026-03-05T08:30:00+09:00</guid>
-    </item>
-  </channel>
+	<channel>
+		<title>remind Feed</title>
+		<link>https://rinkawamukai.github.io/test/public/</link>
+		<description>remind morning</description>
+		<item>
+			<title>remind</title>
+			<pubDate>Wed, 01 Apr 2026 21:00:00 +0900</pubDate>
+			<guid isPermaLink="false">20260313113434-994686</guid>
+			<description>出勤時間：2026/04/2 08:39</description></item>
+	</channel>
 </rss>
