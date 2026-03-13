@@ -23,7 +23,7 @@
 }
 
 /* ユーザーが“ライト”を好んでいるときだけ、ライト配色で上書き */
-@media (prefers-color-scheme: light) {
+@media (prefers-color-scheme: lightmode2) {
   :root {
     --bg: #ffffff;
     --fg: #111418;
