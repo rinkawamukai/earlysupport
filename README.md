@@ -1,6 +1,4 @@
 # Early Support
 
-This is the initial content for the README file of the Early Support project. 
-
-### Current Date and Time
-2026-03-13 02:21:53 (UTC)
+とりあえず早朝対応の日程一覧を表示するだけのページ
+他ツールとの連携は今のところあんまり考えてない
