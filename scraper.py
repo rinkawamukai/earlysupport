@@ -16,8 +16,8 @@ from scrape_execute import execute_scrape_actions
 
 def decide_save_path(cfg):
     """
-    現在日付から出力Excelの保存先パスを決定する。
-    保存先パスに既にファイルがある場合は上書き確認を行う。
+    うおおおお
+    おあああああああ
     """
 
     try:
